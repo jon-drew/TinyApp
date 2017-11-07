@@ -9,6 +9,15 @@ var urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+function databasteToArray(object) {
+  var urlList = []
+  for (key in object) {
+    urlList.push(key);
+    urlList.push(object[key]);
+  } return urlList;
+}
+
+
 app.get("/", (req, res) => {
   res.end("Hello!");
 });
@@ -22,8 +31,14 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase };
+  let templateVars = { urls: databasteToArray(urlDatabase),
+                       appURL: "example.com" };
   res.render("urls_index", templateVars);
+});
+
+app.get("/urls/:id", (req, res) => {
+  let templateVars = { shortURL: req.params.id };
+  res.render("urls_show", templateVars);
 });
 
 app.listen(PORT, () => {
