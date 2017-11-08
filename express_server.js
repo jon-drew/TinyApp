@@ -59,6 +59,25 @@ app.post("/urls/:id/delete", (req, res) => {
   res.redirect("/urls/")
 })
 
+app.post('/urls', (req, res) => {
+  const longURL = req.body;
+  longURL[id] = generateRandomString();
+  urlDatabase[id] = id;
+  res.redirect("/urls/" + id);
+});
+
+app.get('/urls/:id', (req, res) => {
+  let templateVars = {id: req.params.id,
+                      longURL: urlDatabase[id]};
+  res.render("urls_show", templateVars);
+});
+
+app.post('/urls/:id', (req, res) => {
+  urlDatabase[id] = req.body[id];
+  id = req.body[id];
+  res.redirect("/urls/");
+});
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
