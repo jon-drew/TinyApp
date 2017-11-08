@@ -1,4 +1,5 @@
 const express = require("express");
+const cookieparser = require("cookie-parser")
 const app = express();
 const PORT = process.env.PORT || 8080;
 
@@ -6,7 +7,9 @@ const PORT = process.env.PORT || 8080;
 app.set("view engine", "ejs")
 
 const bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({extended: true})).use(cookieparser());
+
+
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
