@@ -1,13 +1,14 @@
-let express = require("express");
-let app = express();
-let PORT = process.env.PORT || 8080; // default port 8080
+const express = require("express");
+const app = express();
+const PORT = process.env.PORT || 8080;
 
-app.set("view engine", "ejs", "body-parser")
+
+app.set("view engine", "ejs")
 
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
-let urlDatabase = {
+const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com",
 };
@@ -29,15 +30,13 @@ function generateRandomString() {
 }
 
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: databasteToArray(urlDatabase),
-                       appURL: "example.com" };
+  let templateVars = { urls: urlDatabase};
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
-
 
 app.get("/urls/new", (req, res) => {
   let templateVars = { urls: databasteToArray(urlDatabase),
@@ -46,17 +45,22 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body);
   urlDatabase[generateRandomString()] = req.body["longURL"];
-  console.log(urlDatabase);
   res.redirect(req.body["longURL"]);
 });
 
-app.get("/u/:shortURL", (req, res) => {
-  let templateVars = { shortURL: req.params.id };
-  res.redirect(urlDatabase[req.params.shortURL]);
+app.get("/u/:id", (req, res) => {
+  let templateVars = { id: req.params.id };
+  res.redirect(urlDatabase[req.params.id]);
 });
+
+app.post("/urls/:id/delete", (req, res) => {
+  delete urlDatabase[req.params.id];
+  res.redirect("/urls/")
+})
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
+

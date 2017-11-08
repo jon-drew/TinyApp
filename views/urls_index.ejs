@@ -7,11 +7,19 @@
   <title>TinyApp</title>
 </head>
 <body>
-  <%= urls%>
-  &nbsp
-  <%= appURL%>
-  <form method="post" action="urls">
-    <button type="submit">Delete</button>
-  </form>
+  <ul>
+    <% for (id in urls) {%>
+      <li>
+        <div class="id">
+          <a href="/urls/<%= id %>">
+            <%= id %> - <%= urls[id] %>
+        </div>
+        <form action="/urls/<%= id %>/delete" method="POST">
+          <input type="submit" value="Delete">
+        </form>
+      </li>
+  <% } %>
+    </form>
+  </ul>
 </body>
 </html>
