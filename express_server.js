@@ -48,9 +48,8 @@ app.get("/urls.json", (req, res) => {
 
 // Creates page that allows users to add to urlDatabase
 app.get("/urls/new", (req, res) => {
-  let templateVars = { urls: urlDatabase,
-                       username: req.cookies.username};
-  res.render("urls_new");
+  let templateVars = { username: req.cookies.username };
+  res.render("urls_new", templateVars);
 });
 
 // Adds an entry to urlDatabase using POST request
