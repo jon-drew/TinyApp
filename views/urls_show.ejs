@@ -4,14 +4,12 @@
     <% include partials/_header.ejs %>
 </header>
 <head>
-  <title>TinyApp</title>
+  <title>TinyApp/ <%= id %> </title>
 </head>
 <body>
   <form action="/urls/<%= id %>" method="POST">
-    <label>
-      <input type="text" name="longURL" value="<%= longURL %>">
-    </label>
-    <br><br>
+    <label for="longURL">Enter a new URL:</label>
+      <input id="longURL" type="text" name="longURL" value="<%= urlDatabase[id] %>">
     <input type="submit" value="Change">
   </form>
 </body>
