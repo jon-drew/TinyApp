@@ -101,7 +101,9 @@ app.post('/urls/:id', (req, res) => {
 
 // Creates registration page (http://localhost:8080/urls/register)
 app.get("/urls/register", (req, res) => {
-  let templateVars = { username: req.cookies.username };
+  let templateVars = { username: req.cookies.username,
+                       email: req.body.email,
+                       password: req.body.password };
   res.render("urls_register", templateVars);
 });
 
@@ -109,21 +111,25 @@ app.get("/urls/register", (req, res) => {
 // via form in urls_register.ejs and redirects user to the new url
 app.post("/register", (req, res) => {
   let templateVars = {username: req.body.username}
-  let id = generateTinyURL()
-  users[id] = { id: id,
-                email: req.body.email,
-                password: req.body.password};
-  if (users[id].email == "" || users[id].password == "") {
-    res.status(400).send('400: Email and password fields cannot be blank');
-  }
+  let newID = generateTinyURL()
+
   for (id in users) {
-    if (users[id].email == req.body.email) {
-      res.status(400).send('400: Email already in database');
+    if (users[id]["email"] == req.body.email) {
+      return res.status(400).send('400: Email already in database');
     }
   }
-  res.cookie("user_id", users[id].id);
-  res.redirect("/urls/");
-  console.log(users)
+
+  if (req.body.email == "" || req.body.password == "") {
+   return res.status(400).send('400: Email and password fields cannot be blank');
+  } else {
+    users[newID] = { id: newID,
+                email: req.body.email,
+                password: req.body.password};
+
+    console.log(users)
+    res.cookie("user_id", users[newID].id);
+    res.redirect("/urls/");
+  }
 });
 
 // Creates a page for an individual URL
