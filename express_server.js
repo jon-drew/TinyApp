@@ -16,6 +16,9 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com",
 };
 
+//Users object
+const users = { }
+
 function databasteToArray(object) {
   let urlList = []
   for (key in object) {
@@ -46,7 +49,7 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-// Creates page that allows users to add to urlDatabase
+// Creates page that allows users to add to urlDatabase (http://localhost:8080/urls/new)
 app.get("/urls/new", (req, res) => {
   let templateVars = { username: req.cookies.username };
   res.render("urls_new", templateVars);
@@ -89,6 +92,31 @@ app.post('/logout', (req, res) => {
   res.redirect("/urls/");
 });
 
+// Edit a longURL using POST request
+// via form in urls_show.ejs
+app.post('/urls/:id', (req, res) => {
+  urlDatabase[req.params.id] = req.body.longURL;
+  res.redirect("/urls/");
+});
+
+// Creates registration page (http://localhost:8080/urls/register)
+app.get("/urls/register", (req, res) => {
+  let templateVars = { username: req.cookies.username };
+  res.render("urls_register", templateVars);
+});
+
+// Adds a user using POST request
+// via form in urls_register.ejs and redirects user to the new url
+app.post("/register", (req, res) => {
+  console.log(users)
+  let templateVars = {username: req.cookies.username}
+  users[generateTinyURL()] = { id: generateTinyURL(),
+                               email: req.body.email,
+                               password: req.body.email};
+  res.cookie("username", req.body.username);
+  res.redirect("/urls/");
+});
+
 // Creates a page for an individual URL
 // rendered by urls_show.ejs when link is clicked
 app.get('/urls/:id', (req, res) => {
@@ -98,14 +126,6 @@ app.get('/urls/:id', (req, res) => {
                       username: req.cookies.username};
   res.render("urls_show", templateVars);
 });
-
-// Edit functionality using POST request
-// via form in urls_show.ejs
-app.post('/urls/:id', (req, res) => {
-  urlDatabase[req.params.id] = req.body.longURL;
-  res.redirect("/urls/");
-});
-
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
