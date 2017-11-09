@@ -10,7 +10,7 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true})).use(cookieparser());
 
 
-
+//Unchanged from example
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com",
@@ -24,60 +24,71 @@ function databasteToArray(object) {
   } return urlList;
 }
 
-function generateRandomString() {
+function generateTinyURL() {
   let validChars = ['1','2','3','4','5','6','7','8','9','0','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
-  let randomString = ''
+  let tinyURL = ''
   for (i = 0; i < 6; i++) {
-    randomString += validChars[Math.floor((Math.random() * 62) + 1)]
-  } return randomString
+    tinyURL += validChars[Math.floor((Math.random() * 62) + 1)]
+  } return tinyURL;
 }
 
+// Creates main page (http://localhost:8080/urls/) with
+// data from urlDatabase object rendered by urls_index.ejs and _header.ejs partial
 app.get("/urls", (req, res) => {
   let templateVars = { urls: urlDatabase};
   res.render("urls_index", templateVars);
 });
 
+
+// Shows browser a JSON version of urlDatabase for testing
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
+// Creates page that allows users to add to urlDatabase
 app.get("/urls/new", (req, res) => {
-  let templateVars = { urls: databasteToArray(urlDatabase),
-                       appURL: "example.com" };
+  let templateVars = { urls: urlDatabase};
   res.render("urls_new");
 });
 
+// Adds an entry to urlDatabase using POST request via form and
+// redirects user to the new url
 app.post("/urls", (req, res) => {
-  urlDatabase[generateRandomString()] = req.body["longURL"];
+  urlDatabase[generateTinyURL()] = req.body["longURL"];
   res.redirect(req.body["longURL"]);
 });
 
+// Allows testing of redirect functionality when a user enters
+// http://localhost:8080/u/ <-- ending with the site's name
 app.get("/u/:id", (req, res) => {
   let templateVars = { id: req.params.id };
   res.redirect(urlDatabase[req.params.id]);
 });
 
+// Delete functionality using POST request via form
 app.post("/urls/:id/delete", (req, res) => {
   delete urlDatabase[req.params.id];
-  res.redirect("/urls/")
+  res.redirect("/urls/");
 })
 
-app.post('/urls', (req, res) => {
-  const longURL = req.body;
-  longURL[id] = generateRandomString();
-  urlDatabase[id] = id;
-  res.redirect("/urls/" + id);
-});
-
+// Creates a page for an individual URL
+// rendered by urls_show.ejs when link is clicked
 app.get('/urls/:id', (req, res) => {
   let templateVars = {id: req.params.id,
                       longURL: urlDatabase[id]};
   res.render("urls_show", templateVars);
 });
 
+// Edit functionality using POST request via form
 app.post('/urls/:id', (req, res) => {
-  urlDatabase[id] = req.body[id];
-  id = req.body[id];
+  const longURL = req.body
+  urlDatabase[id] = req.body;
+  res.redirect("/urls/");
+});
+
+app.post('/login', (req, res) => {
+  res.cookie("username", req.body.name);
+  urlDatabase[id] = id;
   res.redirect("/urls/");
 });
 
