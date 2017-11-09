@@ -1,10 +1,21 @@
 <!-- views/partials/_header.ejs -->
 <meta charset="UTF-8">
 <title>TinyApp</title>
-<form action="/login" method="POST">
-  <label>
-    <input id="username" type="text" name="username" value="username">
-  </label>
-  <input type="submit" value="Submit">
+<% if (!username) {%>
+  <form action="/login" method="POST">
+    <label>
+      <input id="username" type="text" name="username" value="username">
+    </label>
+    <input type="submit" value="Submit">
+  </form>
+<% } %>
+<% if (username) {%>
+  <form action="/logout" method="POST">
+    <label>
+      <input id="username" type="text" name="username" value=<%= username %>>
+    </label>
+    <input type="submit" value="Logout">
+  </form>
+<% } %>
 </form>
 <br>

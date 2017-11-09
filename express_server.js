@@ -82,6 +82,14 @@ app.post('/login', (req, res) => {
   res.redirect("/urls/");
 });
 
+// Removes the username cookie from the browser when
+// a user hits the "Logout" button
+app.post('/logout', (req, res) => {
+  let templateVars = {username: req.cookies.username}
+  res.clearCookie("username", req.body.username);
+  res.redirect("/urls/");
+});
+
 // Creates a page for an individual URL
 // rendered by urls_show.ejs when link is clicked
 app.get('/urls/:id', (req, res) => {
