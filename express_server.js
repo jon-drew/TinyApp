@@ -113,8 +113,17 @@ app.post("/register", (req, res) => {
   users[id] = { id: id,
                 email: req.body.email,
                 password: req.body.password};
+  if (users[id].email == "" || users[id].password == "") {
+    res.status(400).send('400: Email and password fields cannot be blank');
+  }
+  for (id in users) {
+    if (users[id].email == req.body.email) {
+      res.status(400).send('400: Email already in database');
+    }
+  }
   res.cookie("user_id", users[id].id);
   res.redirect("/urls/");
+  console.log(users)
 });
 
 // Creates a page for an individual URL
