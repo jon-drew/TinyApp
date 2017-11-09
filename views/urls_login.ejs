@@ -7,10 +7,11 @@
   <form action="/login" method="POST">
     <label>Log In</label>
     <br>
-      <label for"email">Email:</label>
-      <input id="email" type="email" name="email" value="">
-      <label for"password">Password:</label>
-      <input id="password" type="password" name="password" value="">
+    <label for"email">Email:</label>
+    <input id="email" type="email" name="email" value="">
+    <label for"password">Password:</label>
+    <input id="password" type="password" name="password" value="">
+    <input id="user_id" type="hidden" name="user_id" value="<%= users[user_id] %>">
     <input type="submit" value="Log In">
   </form>
 </body>

@@ -27,7 +27,7 @@ function databasteToArray(object) {
   } return urlList;
 }
 
-function generateTinyURL() {
+function generateRandomString() {
   let validChars = ['1','2','3','4','5','6','7','8','9','0','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
   let tinyURL = ''
   for (i = 0; i < 6; i++) {
@@ -43,10 +43,14 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-
 // Shows browser a JSON version of urlDatabase for testing
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
+});
+
+// Shows browser a JSON version of users for testing
+app.get("/users.json", (req, res) => {
+  res.json(users);
 });
 
 // Creates page that allows users to add to urlDatabase (http://localhost:8080/urls/new)
@@ -58,7 +62,7 @@ app.get("/urls/new", (req, res) => {
 // Adds an entry to urlDatabase using POST request
 // via form in urls_new.ejs and redirects user to the new url
 app.post("/urls", (req, res) => {
-  urlDatabase[generateTinyURL()] = req.body.longURL;
+  urlDatabase[generateRandomString()] = req.body.longURL;
   res.redirect(req.body.longURL);
 });
 
@@ -78,16 +82,23 @@ app.post("/urls/:id/delete", (req, res) => {
 
 // Creates page that allows registered users to log in (http://localhost:8080/urls/login)
 app.get("/urls/login", (req, res) => {
-  let templateVars = { username: req.cookies.user_id };
+  let templateVars = { users: users,
+                       user_id: req.cookies.user_id };
   res.render("urls_login", templateVars);
 });
 
 // Places a cookie on the browser when
 // a user submits their username
 app.post('/login', (req, res) => {
-  let templateVars = {username: req.cookies.user_id}
-  res.cookie("username", req.body.username);
-  res.redirect("/urls/");
+  let templateVars = { user_id: req.body.user_id }
+  for (id in users) {
+    if (users[id]["email"] == req.body.email) {
+      res.cookie("user_id", users[id]);
+      res.redirect("/urls/");
+      } else {
+        return res.status(403).send('403: No matching Email found');
+      }
+    }
 });
 
 // Removes the username cookie from the browser when
@@ -117,7 +128,7 @@ app.get("/urls/register", (req, res) => {
 // Also handles blank username/password fields or trying to register an email that already exists
 app.post("/register", (req, res) => {
   let templateVars = {username: req.body.user_id}
-  let newID = generateTinyURL()
+  let newID = generateRandomString()
   for (id in users) {
     if (users[id]["email"] == req.body.email) {
       return res.status(400).send('400: Email already in database');
