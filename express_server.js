@@ -108,11 +108,11 @@ app.get("/urls/register", (req, res) => {
 // Adds a user using POST request
 // via form in urls_register.ejs and redirects user to the new url
 app.post("/register", (req, res) => {
-  console.log(users)
-  let templateVars = {username: req.cookies.username}
+  let templateVars = {username: req.body.username}
   users[generateTinyURL()] = { id: generateTinyURL(),
                                email: req.body.email,
-                               password: req.body.email};
+                               password: req.body.password};
+  console.log(users)
   res.cookie("username", req.body.username);
   res.redirect("/urls/");
 });
