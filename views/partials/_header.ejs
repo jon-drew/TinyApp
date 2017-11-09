@@ -1,8 +1,11 @@
 <!-- views/partials/_header.ejs -->
 <meta charset="UTF-8">
 <title>TinyApp</title>
+<% if (user_id !== {}) {%>
+  Logged in as: <%= user_id %>
+<% } %>
 <ul>
-  <a href="/urls/login">Login</a>
+  <a href="/urls/login">Login Page</a>
   <br>
-  <a href="/urls/register">Register</a>
+  <a href="/urls/register">Registration Page</a>
 </ul>

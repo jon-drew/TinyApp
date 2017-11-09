@@ -39,7 +39,8 @@ function generateRandomString() {
 // data from urlDatabase object rendered by urls_index.ejs and _header.ejs partial
 app.get("/urls", (req, res) => {
   let templateVars = { urlDatabase: urlDatabase,
-                       username: req.cookies.user_id};
+                       users: users,
+                       user_id: req.cookies.user_id};
   res.render("urls_index", templateVars);
 });
 
@@ -55,7 +56,7 @@ app.get("/users.json", (req, res) => {
 
 // Creates page that allows users to add to urlDatabase (http://localhost:8080/urls/new)
 app.get("/urls/new", (req, res) => {
-  let templateVars = { username: req.cookies.user_id };
+  let templateVars = { user_id: req.cookies.user_id };
   res.render("urls_new", templateVars);
 });
 
@@ -69,7 +70,6 @@ app.post("/urls", (req, res) => {
 // Allows testing of redirect functionality when a user enters
 // http://localhost:8080/u/ <-- ending with the site's name
 app.get("/u/:id", (req, res) => {
-  let templateVars = { id: req.params.id };
   res.redirect(urlDatabase[req.params.id]);
 });
 
@@ -88,9 +88,8 @@ app.get("/urls/login", (req, res) => {
 });
 
 // Places a cookie on the browser when
-// a user submits their username
+// a user submits their Email and password
 app.post('/login', (req, res) => {
-  let templateVars = { user_id: req.body.user_id }
   for (id in users) {
     if (users[id]["email"] == req.body.email) {
       res.cookie("user_id", users[id]);
@@ -101,11 +100,11 @@ app.post('/login', (req, res) => {
     }
 });
 
-// Removes the username cookie from the browser when
+// Removes the user_id cookie from the browser when
 // a user hits the "Logout" button
 app.post('/logout', (req, res) => {
-  let templateVars = {username: req.cookies.user_id}
-  res.clearCookie("username", req.body.username);
+  let templateVars = {user_id: req.cookies.user_id}
+  res.clearCookie("user_id", req.body.user_id);
   res.redirect("/urls/");
 });
 
@@ -118,16 +117,15 @@ app.post('/urls/:id', (req, res) => {
 
 // Creates registration page (http://localhost:8080/urls/register)
 app.get("/urls/register", (req, res) => {
-  let templateVars = { username: req.cookies.user_id,
+  let templateVars = { user_id: req.cookies.user_id,
                        email: req.body.email,
                        password: req.body.password };
   res.render("urls_register", templateVars);
 });
 
 // Adds a user using POST request via form in urls_register.ejs and redirects user to (http://localhost:8080/urls)
-// Also handles blank username/password fields or trying to register an email that already exists
+// Also handles blank Email/password fields or trying to register an email that already exists
 app.post("/register", (req, res) => {
-  let templateVars = {username: req.body.user_id}
   let newID = generateRandomString()
   for (id in users) {
     if (users[id]["email"] == req.body.email) {
@@ -151,7 +149,7 @@ app.get('/urls/:id', (req, res) => {
   let templateVars = {urlDatabase: urlDatabase,
                       id: req.params.id,
                       longURL: urlDatabase[req.params.id],
-                      username: req.cookies.user_id};
+                      user_id: req.cookies.user_id};
   res.render("urls_show", templateVars);
 });
 
