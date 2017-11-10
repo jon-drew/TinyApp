@@ -11,13 +11,16 @@ app.use(bodyParser.urlencoded({extended: true})).use(cookieparser());
 
 
 //Unchanged from example
-const urlDatabase = {
+const oldURLDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com",
 };
 
+//Added user_id layer
+const urlDatabase = { };
+
 //Users object
-const users = { }
+const users = { };
 
 function databasteToArray(object) {
   let urlList = []
@@ -31,7 +34,7 @@ function generateRandomString() {
   let validChars = ['1','2','3','4','5','6','7','8','9','0','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
   let tinyURL = ''
   for (i = 0; i < 6; i++) {
-    tinyURL += validChars[Math.floor((Math.random() * 62) + 1)]
+    tinyURL += validChars[Math.floor((Math.random() * 61) + 1)]
   } return tinyURL;
 }
 
@@ -56,15 +59,29 @@ app.get("/users.json", (req, res) => {
 
 // Creates page that allows users to add to urlDatabase (http://localhost:8080/urls/new)
 app.get("/urls/new", (req, res) => {
-  let templateVars = { user_id: req.cookies.user_id };
-  res.render("urls_new", templateVars);
+  let templateVars = { urlDatabase: urlDatabase,
+                       users: users,
+                       user_id: req.cookies.user_id };
+  if (req.cookies.user_id) {
+    res.render("urls_new", templateVars);
+  } else {
+    res.redirect("/urls/login")
+  }
 });
 
-// Adds an entry to urlDatabase using POST request
-// via form in urls_new.ejs and redirects user to the new url
+// If user is logged in: adds an entry to urlDatabase using POST request via form in urls_new.ejs and redirects user to the new url
+// Else: redirects to (http://localhost:8080/urls/)
 app.post("/urls", (req, res) => {
-  urlDatabase[generateRandomString()] = req.body.longURL;
-  res.redirect(req.body.longURL);
+  shortURL = generateRandomString()
+  if (req.cookies.user_id) {
+        urlDatabase[shortURL] = {
+          shortURL: req.body.longURL,
+          userID: req.cookies.user_id
+          };
+          res.redirect("/urls/");
+      } else {
+    res.redirect("/login/")
+  }
 });
 
 // Allows testing of redirect functionality when a user enters
@@ -76,13 +93,16 @@ app.get("/u/:id", (req, res) => {
 // Delete functionality using POST request
 // via form in urls_index.ejs
 app.post("/urls/:id/delete", (req, res) => {
-  delete urlDatabase[req.params.id];
+  if (req.cookies.user_id) {
+    delete urlDatabase[req.params.id];
+  }
   res.redirect("/urls/");
 })
 
 // Creates page that allows registered users to log in (http://localhost:8080/urls/login)
 app.get("/urls/login", (req, res) => {
-  let templateVars = { users: users,
+  let templateVars = { urlDatabase: urlDatabase,
+                       users: users,
                        user_id: req.cookies.user_id };
   res.render("urls_login", templateVars);
 });
@@ -91,8 +111,10 @@ app.get("/urls/login", (req, res) => {
 // a user submits their Email and password
 app.post('/login', (req, res) => {
   for (id in users) {
+    console.log(users[id]["email"])
+    console.log(req.body.email)
     if (users[id]["email"] == req.body.email) {
-      res.cookie("user_id", users[id]);
+      res.cookie("user_id", users[id]["id"]);
       res.redirect("/urls/");
       } else {
         return res.status(403).send('403: No matching Email found');
@@ -103,16 +125,20 @@ app.post('/login', (req, res) => {
 // Removes the user_id cookie from the browser when
 // a user hits the "Logout" button
 app.post('/logout', (req, res) => {
-  let templateVars = {user_id: req.cookies.user_id}
-  res.clearCookie("user_id", req.body.user_id);
+  let templateVars = { urlDatabase: urlDatabase,
+                       user_id: req.cookies.user_id,
+                       users: users }
+  res.clearCookie("user_id");
   res.redirect("/urls/");
 });
 
 // Edit a longURL using POST request
 // via form in urls_show.ejs
 app.post('/urls/:id', (req, res) => {
-  urlDatabase[req.params.id] = req.body.longURL;
-  res.redirect("/urls/");
+    if (req.cookies.user_id) {
+      urlDatabase[req.params.id] = req.body.longURL;
+      res.redirect("/urls/");
+    }
 });
 
 // Creates registration page (http://localhost:8080/urls/register)
@@ -146,10 +172,11 @@ app.post("/register", (req, res) => {
 // Creates a page for an individual URL
 // rendered by urls_show.ejs when link is clicked
 app.get('/urls/:id', (req, res) => {
-  let templateVars = {urlDatabase: urlDatabase,
-                      id: req.params.id,
-                      longURL: urlDatabase[req.params.id],
-                      user_id: req.cookies.user_id};
+  let templateVars = { urlDatabase: urlDatabase,
+                       users: users,
+                       id: req.params.id,
+                       longURL: urlDatabase[req.params.id],
+                       user_id: req.cookies.user_id };
   res.render("urls_show", templateVars);
 });
 
