@@ -2,12 +2,12 @@
 <html lang="en">
 <header>
   <% include partials/_header.ejs %>
-</header>
-<body>
-    <% for (id in urlDatabase) { if (urlDatabase[id]["id"] == user_id) { %>
+    <a href="/urls/new">Create a New Short Link</a>
+    <% for (id in urlDatabase) {
+      if (urlDatabase[id]["id"] == user_id) { %>
       <li>
         <div class="id">
-          <label> <%= id %>: </label>
+          <label> <%= id %> <%= urlDatabase[id] %> : </label>
           <a href="/urls/<%= id %>"> <%= urlDatabase[id]["shortURL"] %> </a>
         <form action="/urls/<%= id %>" method="GET">
           <input type="submit" value="Edit">
@@ -18,11 +18,5 @@
         </div>
       </li>
     <% } } %>
-  <br>
-  <form action="/logout" method="POST">
-    <label>
-      <input id="user_id" type="button" name="user_id" value=<%= user_id %>>
-    </label>
-  </form>
 </body>
 </html>
