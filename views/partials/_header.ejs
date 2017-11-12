@@ -2,7 +2,6 @@
 <meta charset="UTF-8">
 <title>TinyApp</title>
 </header>
-<body style="font-size:20px; padding:50px;">
   <% if (user_id !== undefined) {%>
     Logged in as: <%= user_email %>
     <form action="/logout" method="POST">
@@ -16,3 +15,4 @@
     <a href="/urls/register">Registration Page</a>
     <br>
   <% } %>
+<body style="font-size:20px; padding:50px;">

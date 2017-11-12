@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
-<header>
-  <% include partials/_header.ejs %>
+  <header>
+    <% include partials/_header.ejs %>
     <a href="/urls/new">Create a New Short Link</a>
     <% for (id in urlDatabase) {
       if (urlDatabase[id]["userID"] == user_id) { %>
@@ -9,14 +9,14 @@
           <div class="id">
             <label> <%= id %> : </label>
             <a href="/urls/<%= id %>"> <%= urlDatabase[id]["longURL"] %> </a>
-          <form action="/urls/<%= id %>" method="GET">
-            <input type="submit" value="Edit">
-          </form>
-          <form action="/urls/<%= id %>/delete" method="POST">
-            <input type="submit" value="Delete">
-          </form>
+            <form action="/urls/<%= id %>" method="GET">
+             <input type="submit" value="Edit">
+            </form>
+            <form action="/urls/<%= id %>/delete" method="POST">
+              <input type="submit" value="Delete">
+            </form>
           </div>
         </ul>
     <% } } %>
-</body>
+  </body>
 </html>
