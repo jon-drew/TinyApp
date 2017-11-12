@@ -5,7 +5,7 @@
     <a href="/urls/new">Create a New Short Link</a>
     <% for (id in urlDatabase) {
       if (urlDatabase[id]["userID"] == user_id) { %>
-        <li>
+        <ul>
           <div class="id">
             <label> <%= id %> : </label>
             <a href="/urls/<%= id %>"> <%= urlDatabase[id]["longURL"] %> </a>
@@ -16,7 +16,7 @@
             <input type="submit" value="Delete">
           </form>
           </div>
-        </li>
+        </ul>
     <% } } %>
 </body>
 </html>
