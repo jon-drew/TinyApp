@@ -4,7 +4,7 @@
 </header>
 <body style="font-size:20px; padding:50px;">
   <% if (user_id !== undefined) {%>
-    Logged in as: <%= users[user_id]["email"] %>
+    Logged in as: <%= user_email %>
     <form action="/logout" method="POST">
       <label>
         <input id="logout" type="submit" name="logout" value="Logout">
@@ -14,4 +14,5 @@
     <a href="/urls/login">Login Page</a>
     <br>
     <a href="/urls/register">Registration Page</a>
+    <br>
   <% } %>

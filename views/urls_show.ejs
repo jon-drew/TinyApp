@@ -4,7 +4,7 @@
     <% include partials/_header.ejs %>
   <form action="/urls/<%= id %>" method="POST">
     <label for="longURL">Enter a new URL:</label>
-      <input id="longURL" type="text" name="longURL" value="<%= urlDatabase[id] %>">
+      <input id="longURL" type="text" name="longURL" value="<%= urlDatabase[id]['longURL'] %>">
     <input type="submit" value="Change">
   </form>
 </body>

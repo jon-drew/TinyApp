@@ -8,14 +8,6 @@ app.set("view engine", "ejs")
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true})).use(cookieparser());
 
-/*
-Unchanged from example
-const oldURLDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com",
-};
-*/
-
 //Added user_id layer
 const urlDatabase = {};
 
@@ -39,6 +31,7 @@ function generateRandomString() {
 }
 
 app.get("/", (req, res) => {
+  const user_id = req.cookies.user_id;
   let templateVars = {urlDatabase: urlDatabase,
                        users: users,
                        user_id: req.cookies.user_id};
@@ -52,9 +45,12 @@ app.get("/", (req, res) => {
 // Creates main page (http://localhost:8080/urls/) with
 // data from urlDatabase object rendered by urls_index.ejs and _header.ejs partial
 app.get("/urls", (req, res) => {
+  const user_id = req.cookies.user_id;
   let templateVars = {urlDatabase: urlDatabase,
                       users: users,
-                      user_id: req.cookies.user_id};
+                      user_email: users[user_id] && users[user_id].email ? users[user_id].email : '',
+                      user_id: user_id
+                    };
   if (req.cookies.user_id !== undefined) {
     res.render("urls_index", templateVars);
   } else {
@@ -74,8 +70,10 @@ app.get("/users.json", (req, res) => {
 
 // Creates page that allows users to add to urlDatabase (http://localhost:8080/urls/new)
 app.get("/urls/new", (req, res) => {
+  const user_id = req.cookies.user_id;
   let templateVars = {urlDatabase: urlDatabase,
                        users: users,
+                       user_email: users[user_id] && users[user_id].email ? users[user_id].email : '',
                        user_id: req.cookies.user_id};
   if (req.cookies.user_id !== undefined) {
     res.render("urls_new", templateVars);
@@ -89,19 +87,13 @@ app.get("/urls/new", (req, res) => {
 app.post("/urls", (req, res) => {
   shortURL = generateRandomString()
   if (req.cookies.user_id !== undefined) {
-    urlDatabase[shortURL] = {shortURL: req.body.longURL,
+    urlDatabase[shortURL] = {longURL: req.body.longURL,
                              userID: req.cookies.user_id
                             }
     res.redirect("/urls");
   } else {
     res.redirect("/login");
   }
-});
-
-// Allows testing of redirect functionality when a user enters
-// http://localhost:8080/u/ <-- ending with the site's name
-app.get("/u/:id", (req, res) => {
-  res.redirect(urlDatabase[req.params.id]);
 });
 
 // Delete functionality using POST request
@@ -115,26 +107,29 @@ app.post("/urls/:id/delete", (req, res) => {
 
 // Creates page that allows registered users to log in (http://localhost:8080/urls/login)
 app.get("/urls/login", (req, res) => {
+  const user_id = req.cookies.user_id;
   let templateVars = { urlDatabase: urlDatabase,
                        users: users,
-                       user_id: req.cookies.user_id };
+                       user_email: users[user_id] && users[user_id].email ? users[user_id].email : '',
+                       user_id: user_id };
   res.render("urls_login", templateVars);
 });
 
 // Places a cookie on the browser when
 // a user submits their Email and password
 app.post('/login', (req, res) => {
-  if (users !== {}) {
-    for (id in users) {
-      if (users[id]["email"] == req.body.email && users[id]["password"] == req.body.password) {
-        res.cookie("user_id", users[id]["id"]);
-        res.redirect("/urls/");
-        } else {
-          return res.status(403).send('403: Incorrect name or password');
-        }
+  if (req.body.email == "" || req.body.password == "") {
+    return res.status(400).send('400: Email and password fields cannot be blank');
+  }
+  if (Object.keys(users).length === 0) {
+    return res.status(403).send('403: Incorrect name or password');
+  }
+  for (id in users) {
+    if (users[id]["email"] === req.body.email && users[id]["password"] === req.body.password) {
+      res.cookie("user_id", users[id]);
+      res.redirect("/urls/");
     }
-  } else {
-    res.redirect("/urls/register")
+  return res.status(403).send('403: Incorrect name or password');
   }
 });
 
@@ -149,15 +144,17 @@ app.post('/logout', (req, res) => {
 // via form in urls_show.ejs
 app.post('/urls/:id', (req, res) => {
     if (req.cookies.user_id !== undefined) {
-      urlDatabase[req.params.id] = req.body.longURL;
+      urlDatabase[req.params.id]["longURL"] = req.body.longURL;
       res.redirect("/urls/");
     }
 });
 
 // Creates registration page (http://localhost:8080/urls/register)
 app.get("/urls/register", (req, res) => {
-  let templateVars = { user_id: req.cookies.user_id,
+  const user_id = req.cookies.user_id;
+  let templateVars = { user_id: user_id,
                        email: req.body.email,
+                       user_email: users[user_id] && users[user_id].email ? users[user_id].email : '',
                        password: req.body.password };
   res.render("urls_register", templateVars);
 });
@@ -174,9 +171,9 @@ app.post("/register", (req, res) => {
   if (req.body.email == "" || req.body.password == "") {
    return res.status(400).send('400: Email and password fields cannot be blank');
   } else {
-    users[newID] = { id: newID,
-                email: req.body.email,
-                password: req.body.password};
+    users[newID] = {id: newID,
+                    email: req.body.email,
+                    password: req.body.password};
     res.cookie("user_id", users[newID].id);
     res.redirect("/urls/");
   }
@@ -185,12 +182,26 @@ app.post("/register", (req, res) => {
 // Creates a page for an individual URL
 // rendered by urls_show.ejs when link is clicked
 app.get('/urls/:id', (req, res) => {
+  const user_id = req.cookies.user_id;
   let templateVars = { urlDatabase: urlDatabase,
                        users: users,
+                       user_email: users[user_id] && users[user_id].email ? users[user_id].email : '',
                        id: req.params.id,
                        longURL: urlDatabase[req.params.id],
                        user_id: req.cookies.user_id };
   res.render("urls_show", templateVars);
+});
+
+// Redirects from shortURL to longURL
+app.get('/u/:id', (req, res) => {
+  for (key in urlDatabase) {
+    console.log(urlDatabase[key]["longURL"])
+    if (id === key) {
+      res.redirect(urlDatabase[key]["longURL"]);
+    } else {
+      return res.status(403).send('403: No URL corresponding to that ID');
+    }
+  }
 });
 
 app.listen(PORT, () => {
