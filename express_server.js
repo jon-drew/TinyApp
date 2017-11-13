@@ -121,6 +121,8 @@ app.post('/login', (req, res) => {
     if (users[id]["email"] === req.body.email && bcrypt.compareSync(req.body.password, users[id]["password"])) {
       req.session.user_id = users[id]["id"];
       res.redirect("/urls/");
+    } else {
+      return res.status(401).send('401: Incorrect name or password');
     }
   }
 });
