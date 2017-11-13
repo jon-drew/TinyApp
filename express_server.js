@@ -14,19 +14,11 @@ app.use(bodyParser.urlencoded({extended: true})).use(cookieSession({
   keys: [user_id],
 
   // Cookie Options
-  maxAge: 5 * 60 * 1000 // 5 minutes
+  maxAge: 60 * 60 * 1000 // 60 minutes
 }))
 
 const urlDatabase = {};
 const users = {};
-
-function databasteToArray(object) {
-  let urlList = []
-  for (key in object) {
-    urlList.push(key);
-    urlList.push(object[key]);
-  } return urlList;
-}
 
 function generateRandomString() {
   let validChars = ['1','2','3','4','5','6','7','8','9','0','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
@@ -49,8 +41,7 @@ app.get("/", (req, res) => {
   }
 });
 
-// Creates main page (http://localhost:8080/urls/) with
-// data from urlDatabase object rendered by urls_index.ejs and _header.ejs partial
+// Creates main page (http://localhost:8080/urls/) or redirects to /login
 app.get("/urls", (req, res) => {
   const user_id = req.session.user_id;
   let templateVars = {urlDatabase: urlDatabase,
@@ -88,8 +79,7 @@ app.get("/urls/new", (req, res) => {
   }
 });
 
-// If user is logged in: adds an entry to urlDatabase using POST request and redirects user to
-// Else: redirects to (http://localhost:8080/urls/login)
+// Adds an entry to urlDatabase
 app.post("/urls", (req, res) => {
   shortURL = generateRandomString()
   if (req.session.user_id !== undefined) {
@@ -101,7 +91,7 @@ app.post("/urls", (req, res) => {
   }
 });
 
-// Delete from urlDatabase
+// Deletes from urlDatabase
 app.post("/urls/:id/delete", (req, res) => {
   if (req.session.user_id !== undefined) {
     delete urlDatabase[req.params.id];
@@ -141,7 +131,7 @@ app.post('/logout', (req, res) => {
   res.redirect("/urls/login");
 });
 
-// Edit a longURL using POST request
+// Edits a longURL value while maintaining the shortURL key
 app.post('/urls/:id', (req, res) => {
     if (req.session.user_id !== undefined) {
       urlDatabase[req.params.id]["longURL"] = req.body.longURL;
