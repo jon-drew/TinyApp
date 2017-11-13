@@ -13,5 +13,3 @@ A URL-shortening web application built with Node and Express. Implements registr
 ## Getting started
 - Install all dependencies with the 'npm install' command
 - Run the development web server using the 'node express_server.js' command
-
-![alt text] (TinyApp/docs/TA_blank_urls_page.png)
